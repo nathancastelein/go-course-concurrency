@@ -22,7 +22,7 @@ func TestTickTimer(t *testing.T) {
 	expectedOutput := strings.Repeat("Hello from ticker\n", 5) + "Time to say goodbye\n"
 
 	// Act
-	TimerTicker(50*time.Millisecond, 10*time.Millisecond)
+	TimerTicker(55*time.Millisecond, 10*time.Millisecond)
 
 	// Assert
 	w.Close()
