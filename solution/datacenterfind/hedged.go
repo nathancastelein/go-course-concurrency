@@ -18,6 +18,7 @@ func Hedged(resourceName string, finders []Finder) {
 		select {
 		case result := <-results:
 			slog.Info("got result", slog.Bool("found", result))
+			timer.Stop()
 			return
 		case <-timer.C:
 			continue
