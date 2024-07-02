@@ -32,14 +32,14 @@ func (d *datacenter) Find(resourceName string) bool {
 
 func (d *datacenter) FindWithContext(ctx context.Context, resourceName string) bool {
 	timer := time.NewTimer(d.responseDelay)
-	for {
-		select {
-		case <-timer.C:
-			return true
-		case <-ctx.Done():
-			slog.Info("deadline exceeded", slog.Any("finder", d))
-			return false
-		}
+	defer timer.Stop()
+
+	select {
+	case <-timer.C:
+		return true
+	case <-ctx.Done():
+		slog.Info("deadline exceeded", slog.Any("finder", d))
+		return false
 	}
 }
 
@@ -48,15 +48,14 @@ func (d *datacenter) FindWithError(ctx context.Context, resourceName string) (bo
 		return false, d.err
 	}
 	timer := time.NewTimer(d.responseDelay)
+	defer timer.Stop()
 
-	for {
-		select {
-		case <-timer.C:
-			return true, nil
-		case <-ctx.Done():
-			slog.Info("deadline exceeded", slog.Any("finder", d))
-			return false, errors.New("deadline exceeded")
-		}
+	select {
+	case <-timer.C:
+		return true, nil
+	case <-ctx.Done():
+		slog.Info("deadline exceeded", slog.Any("finder", d))
+		return false, errors.New("deadline exceeded")
 	}
 }
 
