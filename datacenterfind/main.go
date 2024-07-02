@@ -37,6 +37,6 @@ func main() {
 	case "wsemaphore":
 		WeightedSemaphore(resourceName, append(finders, RBX(), WAW()))
 	default:
-		slog.Error("unkown action", slog.String("action", action))
+		slog.Error("unknown action", slog.String("action", action))
 	}
 }
