@@ -11,14 +11,19 @@ func Redundant(resourceName string, finders []Finder) {
 
 	for _, finder := range finders {
 		go func() {
-			results <- Result{
-				datacenter: finder,
-				found:      finder.FindWithContext(ctx, resourceName),
+			slog.Info("launching find", slog.Any("datacenter", finder))
+			found, err := finder.FindWithContext(ctx, resourceName)
+			if err == nil {
+				results <- Result{
+					datacenter: finder,
+					found:      found,
+				}
 			}
 		}()
 	}
 
 	result := <-results
 	cancel()
+	close(results)
 	slog.Info("got result", slog.Any("datacenter", result.datacenter), slog.Bool("found", result.found))
 }

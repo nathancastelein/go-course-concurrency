@@ -28,10 +28,10 @@ func ErrGroup(resourceName string, finders []Finder) {
 	if err := errGroup.Wait(); err != nil {
 		slog.Error("an error occured", slog.String("error", err.Error()))
 		return
-	} else {
-		close(results)
-		for result := range results {
-			slog.Info("got result", slog.Any("datacenter", result.datacenter), slog.Bool("found", result.found))
-		}
+	}
+
+	close(results)
+	for result := range results {
+		slog.Info("got result", slog.Any("datacenter", result.datacenter), slog.Bool("found", result.found))
 	}
 }

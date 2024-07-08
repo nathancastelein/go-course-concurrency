@@ -1,14 +1,26 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 )
 
 func Hedged(resourceName string, finders []Finder) {
-	for _, finder := range finders {
-		slog.Info("launching find", slog.Any("datacenter", finder))
-		found := finder.Find(resourceName)
+	results := make(chan bool, len(finders))
+	ctx, cancel := context.WithCancel(context.Background())
 
-		slog.Info("got result", slog.Bool("found", found))
+	for _, finder := range finders {
+		go func() {
+			slog.Info("launching find", slog.Any("datacenter", finder))
+			found, err := finder.FindWithContext(ctx, resourceName)
+			if err == nil {
+				results <- found
+			}
+		}()
 	}
+
+	found := <-results
+	cancel()
+	close(results)
+	slog.Info("got result", slog.Bool("found", found))
 }

@@ -9,6 +9,7 @@ func Semaphore(resourceName string, finders []Finder) {
 	var wg sync.WaitGroup
 	maxParallelAccesses := 2
 	semaphore := make(chan struct{}, maxParallelAccesses)
+	defer close(semaphore)
 
 	for _, finder := range finders {
 		wg.Add(1)

@@ -9,7 +9,7 @@ import (
 
 type Finder interface {
 	Find(resourceName string) bool
-	FindWithContext(ctx context.Context, resourceName string) bool
+	FindWithContext(ctx context.Context, resourceName string) (bool, error)
 	FindWithError(ctx context.Context, resourceName string) (bool, error)
 	Weight() int64
 }
@@ -30,16 +30,16 @@ func (d *datacenter) Find(resourceName string) bool {
 	return true
 }
 
-func (d *datacenter) FindWithContext(ctx context.Context, resourceName string) bool {
+func (d *datacenter) FindWithContext(ctx context.Context, resourceName string) (bool, error) {
 	timer := time.NewTimer(d.responseDelay)
 	defer timer.Stop()
 
 	select {
 	case <-timer.C:
-		return true
+		return true, nil
 	case <-ctx.Done():
 		slog.Info("deadline exceeded", slog.Any("finder", d))
-		return false
+		return false, context.DeadlineExceeded
 	}
 }
 
